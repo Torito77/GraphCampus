@@ -16,8 +16,10 @@ class Node(MasterNode):
         self.yPos:int
     
     def add_adjacent(self, new_node: AdjacencyNode):
+        """ Add an adjacent node to the adjacency list """
         self.adj_list = insert_node(head=self.adj_list, new_node=new_node)
     
+    # This is just so the priority queue does not break
     def __lt__(self, other):
         h1 = self.h_value if self.h_value else float("inf")
         h2 = other.h_value if other.h_value else float("inf")
@@ -27,9 +29,9 @@ class Node(MasterNode):
         return f"Node: {self.info}"
 
 class AdjacencyNode(MasterNode):
-    def __init__(self, weight:float, adj_node:Node, next: AdjacencyNode = None):
+    def __init__(self, cost:float, adj_node:Node, next: AdjacencyNode = None):
         super().__init__()
-        self.weight: float = weight
+        self.cost: float = cost
         self.adj_node: Node = adj_node
         self.next: AdjacencyNode = next
         
@@ -55,14 +57,14 @@ def print_nodes(head: MasterNode):
                 print(f"{temp.info} -> ", end="")
             elif type(temp) == AdjacencyNode:
                 temp:AdjacencyNode
-                print(f"{temp.adj_node.info}: {temp.weight} -> ", end="")
+                print(f"{temp.adj_node.info}: {temp.cost} -> ", end="")
                 
             temp = temp.next
 
 # dummy = Node("DUMMY")
-# head = AdjacencyNode(weight=3.1, h_value=1, adj_node=dummy)
+# head = AdjacencyNode(cost=3.1, h_value=1, adj_node=dummy)
 # dummy.add_adjacent(head)
-# insert_node(head, new_node=AdjacencyNode(weight=4, h_value=1, adj_node=dummy))
-# insert_node(head, new_node=AdjacencyNode(weight=2, h_value=1, adj_node=dummy))
+# insert_node(head, new_node=AdjacencyNode(cost=4, h_value=1, adj_node=dummy))
+# insert_node(head, new_node=AdjacencyNode(cost=2, h_value=1, adj_node=dummy))
 
 # print(dummy.adj_list)

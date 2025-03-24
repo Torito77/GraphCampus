@@ -1,6 +1,6 @@
 import pandas
 from nodes import Node, AdjacencyNode, insert_node, print_nodes
-from algs import dfs, bfs, gbfs
+from algs import dfs, bfs, gbfs, dijkstra
 # from algs import fill_h
 
 nodes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", 
@@ -15,7 +15,9 @@ for node in nodes:
     # new_node.yPos = Y
     
     node_collection[node] = new_node
-    
+
+# Save the linked list that contains all the nodes
+# Used later in methods that require heuristic
 head: Node = node_collection[nodes[0]]
 
 
@@ -24,14 +26,14 @@ data = pandas.read_csv("./data/weight_data.csv")
 for (index, row) in data.iterrows():
     start: Node = node_collection[row["start"]]
     end: Node = node_collection[row["end"]]
-    weight = float(row["weight"])
+    cost = float(row["cost"])
     
     start.add_adjacent(AdjacencyNode(
-        weight=weight,
+        cost=cost,
         adj_node=end
     ))
     end.add_adjacent(AdjacencyNode(
-        weight=weight,
+        cost=cost,
         adj_node=start
     ))
 
@@ -41,15 +43,8 @@ for (index, row) in data.iterrows():
 #     print_nodes(value.adj_list)
 #     print()
 
-start_node = node_collection["W"]
-end_node = node_collection["Cn1"]
-#dfs_path = dfs(start_node, end_node)
-#bfs_path = bfs(start_node, end_node)
-gbfs_path = gbfs(head, start_node, end_node)
-print(f"GBFS path: {gbfs_path}")
-
-# fill_h(node_collection["Z"])
-# print("Heuristic: ")
-# for value in node_collection.values():
-#     value:Node
-#     print(f"{value.info}: {value.h_value}")
+start_node = node_collection["S"]
+end_node = node_collection["M"]
+# dfs_path = dfs(start_node, end_node)
+# bfs_path = bfs(start_node, end_node)
+# gbfs_path = gbfs(head, start_node, end_node)
