@@ -1,7 +1,6 @@
 import pandas
 from nodes import Node, AdjacencyNode, insert_node, print_nodes
-from algs import dfs, bfs, gbfs, dijkstra
-# from algs import fill_h
+from algs import dfs, bfs, gbfs, dijkstra, a_star
 
 nodes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", 
         "T", "U", "V", "W", "X", "Y", "Z", "T1", "T2", "CC", "FF", "Cn1", "Cn2", "Et1", "Et2", "Et3", "Et4", "Et5", "Et6"]
@@ -48,3 +47,6 @@ end_node = node_collection["M"]
 # dfs_path = dfs(start_node, end_node)
 # bfs_path = bfs(start_node, end_node)
 # gbfs_path = gbfs(head, start_node, end_node)
+# dijkstra_path = dijkstra(start_node, end_node)
+a_star_path = a_star(head, start_node, end_node)
+print(f"A*: {a_star_path}")

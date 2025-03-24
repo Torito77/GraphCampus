@@ -124,19 +124,19 @@ def dijkstra(start: Node, end: Node):
     return None
 
 
-def aStar(head:Node, start: Node, end: Node):
+def a_star(head:Node, start: Node, end: Node):
     pq = PriorityQueue()
-    distances = {start: 0} 
+    distances = {start: 0} # {node: cost}
     visited = set()
     
     reset_h(head)
     fill_h(end)
     
-    # f = cost + h
-    pq.put((start.h_value, 0, start, [start.info]))  # (f, cost, node, path)
+    # weight = cost + h
+    pq.put((start.h_value, 0, start, [start.info]))  # (weight, cost, node, path)
     
     while not pq.empty():
-        f, cost, current, path = pq.get()
+        weight, cost, current, path = pq.get()
         current: Node
         
         if current in visited:
@@ -151,11 +151,12 @@ def aStar(head:Node, start: Node, end: Node):
         while temp:
             neighbor = temp.adj_node
             new_cost = cost + temp.cost
-
+            new_weight = new_cost + neighbor.h_value
+            
             if (neighbor not in distances) or (new_cost < distances[neighbor]):
                 distances[neighbor] = new_cost
-                pq.put((new_cost, neighbor, path + [neighbor.info]))
-            
+                pq.put( ( new_weight, new_cost, neighbor, (path + [neighbor.info]) ) )
+                
             temp = temp.next
     
     return None
