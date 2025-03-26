@@ -1,5 +1,5 @@
 from __future__ import annotations
-from collections import deque
+
 
 class MasterNode:
     def __init__(self, next: MasterNode = None):
@@ -16,7 +16,6 @@ class Node(MasterNode):
         self.yPos:int
     
     def add_adjacent(self, new_node: AdjacencyNode):
-        """ Add an adjacent node to the adjacency list """
         self.adj_list = insert_node(head=self.adj_list, new_node=new_node)
     
     # This is just so the priority queue does not break
@@ -24,7 +23,7 @@ class Node(MasterNode):
         h1 = self.h_value if self.h_value else float("inf")
         h2 = other.h_value if other.h_value else float("inf")
         return h1 < h2
-
+    
     def __repr__(self):
         return f"Node: {self.info}"
 

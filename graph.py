@@ -19,13 +19,15 @@ for node in nodes:
 # Used later in methods that require heuristic
 head: Node = node_collection[nodes[0]]
 
-
-#Adjacency's
+edges = []
+# Adjacency's
 data = pandas.read_csv("./data/weight_data.csv")
 for (index, row) in data.iterrows():
     start: Node = node_collection[row["start"]]
     end: Node = node_collection[row["end"]]
     cost = float(row["cost"])
+    
+    edges.append( {"start":start.info, "end":end.info, "cost":cost} )
     
     start.add_adjacent(AdjacencyNode(
         cost=cost,
@@ -36,17 +38,19 @@ for (index, row) in data.iterrows():
         adj_node=start
     ))
 
+start_node = node_collection["X"]
+end_node = node_collection["Y"]
+
+dfs_path = dfs(start_node, end_node)
+bfs_path = bfs(start_node, end_node)
+gbfs_path = gbfs(head, start_node, end_node)
+dijkstra_path = dijkstra(start_node, end_node)
+a_star_path = a_star(head, start_node, end_node)
+print(f"Path: {a_star_path}")
+
+#TODO: When finished, just leave head & node_collection to import externally
 # for value in node_collection.values():
 #     value:Node
 #     print(f"{value.info} -> ", end="")
 #     print_nodes(value.adj_list)
 #     print()
-
-start_node = node_collection["S"]
-end_node = node_collection["M"]
-# dfs_path = dfs(start_node, end_node)
-# bfs_path = bfs(start_node, end_node)
-# gbfs_path = gbfs(head, start_node, end_node)
-# dijkstra_path = dijkstra(start_node, end_node)
-a_star_path = a_star(head, start_node, end_node)
-print(f"A*: {a_star_path}")
