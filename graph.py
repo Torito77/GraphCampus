@@ -41,12 +41,12 @@ for (index, row) in data.iterrows():
 start_node = node_collection["X"]
 end_node = node_collection["Y"]
 
-dfs_path = dfs(start_node, end_node)
-bfs_path = bfs(start_node, end_node)
-gbfs_path = gbfs(head, start_node, end_node)
-dijkstra_path = dijkstra(start_node, end_node)
-a_star_path = a_star(head, start_node, end_node)
-print(f"Path: {a_star_path}")
+# dfs_path = dfs(start_node, end_node)
+# bfs_path = bfs(start_node, end_node)
+# gbfs_path = gbfs(head, start_node, end_node)
+# dijkstra_path = dijkstra(start_node, end_node)
+# a_star_path = a_star(head, start_node, end_node)
+# print(f"Path: {a_star_path}")
 
 #TODO: When finished, just leave head & node_collection to import externally
 # for value in node_collection.values():

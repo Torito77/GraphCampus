@@ -13,9 +13,6 @@ from tkinter import messagebox
 from graph import head, node_collection, edges
 from nodes import Node, AdjacencyNode
 from algs import dfs, bfs, gbfs, dijkstra, a_star
-nodes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", 
-        "T", "U", "V", "W", "X", "Y", "Z", "T1", "T2", "CC", "FF", "Cn1", "Cn2", "Et1", "Et2", "Et3", "Et4", "Et5", "Et6"]
-
 
 
 class UI:
@@ -33,6 +30,9 @@ class UI:
         self.end_node = None
         self.selected_algorithm = None
         
+        # Result variables
+        self.path_found = None
+        
         # Create buttons frame
         self.button_frame = tk.Frame(master)
         self.button_frame.pack(side=tk.BOTTOM, fill=tk.X)
@@ -48,10 +48,10 @@ class UI:
         self.info_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
         # Info labels
-        self.start_label = tk.Label(self.info_frame, text="Inicio: No seleccionado", fg="blue")
+        self.start_label = tk.Label(self.info_frame, text="Inicio:", fg="blue")
         self.start_label.pack(side=tk.LEFT, padx=10)
         
-        self.end_label = tk.Label(self.info_frame, text="Fin: No seleccionado", fg="blue")
+        self.end_label = tk.Label(self.info_frame, text="Nodo final:", fg="blue")
         self.end_label.pack(side=tk.LEFT, padx=10)
         
         # Algorithm buttons
@@ -60,7 +60,7 @@ class UI:
         # Draw initial graph
         self.draw_graph()
 
-    
+    # - - - - - - - - - - - - - - Graph design and drawing - - - - - - - - - - - - - - - - - - - - - >
     def create_graph(self):
         self.graph.add_nodes_from(node_collection.keys())
         
@@ -75,17 +75,17 @@ class UI:
         
         # Draw nodes
         nx.draw_networkx_nodes(self.graph, self.pos, ax=self.ax, 
-                                node_color=['red' if n == self.start_node else 
-                                            'green' if n == self.end_node else 
-                                            'lightblue' for n in self.graph.nodes()], 
+                                node_color=['#C890A7' if n == self.start_node else 
+                                            '#AAB99A' if n == self.end_node else 
+                                            '#D9EAFD' for n in self.graph.nodes()], 
                                 node_size=500)
         
         # Draw edges with weights
         nx.draw_networkx_edges(self.graph, self.pos, ax=self.ax, width=1, edge_color='gray')
         
-        # Draw edge labels
-        edge_labels = nx.get_edge_attributes(self.graph, 'weight')
-        nx.draw_networkx_edge_labels(self.graph, self.pos, edge_labels=edge_labels, ax=self.ax)
+        # # Draw edge labels
+        # edge_labels = nx.get_edge_attributes(self.graph, 'weight')
+        # nx.draw_networkx_edge_labels(self.graph, self.pos, edge_labels=edge_labels, ax=self.ax)
         
         # Draw node labels
         nx.draw_networkx_labels(self.graph, self.pos, ax=self.ax)
@@ -99,10 +99,58 @@ class UI:
         # Redraw canvas
         self.canvas.draw()
         
-        
-    def on_node_click(self, event):
-        pass
     
+    # - - - - Graph clicking & node selection - - - - - >
+    def on_node_click(self, event):
+        # Check if click is on a node
+        if event.inaxes != self.ax:
+            return
+        
+        # Find the closest node to the click
+        node = self.find_closest_node(event)
+        
+        if node:
+            # If no start node, set start node
+            if not self.start_node:
+                self.start_node = node
+                self.start_label.config(text=f"Nodo inicial: {node}")
+                
+            # If start node is set but no end node, set end node
+            elif not self.end_node and node != self.start_node:
+                self.end_node = node
+                self.end_label.config(text=f"Nodo final: {node}")
+                
+                
+            # If both nodes are set, reset selection
+            else:
+                self.start_node = node
+                self.end_node = None
+                self.start_label.config(text=f"Nodo inicial: {node}")
+                self.end_label.config(text="Nodo final:")
+            
+            # Redraw graph to update node colors
+            self.draw_graph()
+    
+    def find_closest_node(self, event):
+        # Find the node closest to the click coordinates
+        closest_node = None
+        min_dist = float('inf')
+        for node, (x, y) in self.pos.items():
+            # Convert node position to display coordinates
+            node_x, node_y = self.ax.transData.transform((x, y))
+            
+            # Calculate distance
+            dist = ((event.x - node_x)**2 + (event.y - node_y)**2)**0.5
+            
+            # If close enough (20 pixels)
+            if (dist < 20) and (dist < min_dist):
+                closest_node = node
+                min_dist = dist
+                
+        # closest_node: str
+        return closest_node
+    
+    # - - - - - - - - Algorithm buttons - - - - - - - - >
     def create_algorithm_buttons(self):
         algorithms = [
             ("DFS", self.run_dfs),
@@ -115,7 +163,7 @@ class UI:
             btn = tk.Button(self.button_frame, text=name, command=command)
             btn.pack(side=tk.LEFT, padx=5, pady=5)
         
-        reset_btn = tk.Button(self.button_frame, text="Reset", command=self.reset_selection)
+        reset_btn = tk.Button(self.button_frame, text="Quitar selección", command=self.reset_selection)
         reset_btn.pack(side=tk.LEFT, padx=5, pady=5)
     
     def run_dfs(self):
@@ -128,14 +176,19 @@ class UI:
         pass
     def run_a_star(self):
         pass
+    
     def reset_selection(self):
         self.start_node = None
         self.end_node = None
         self.selected_algorithm = None
-        self.start_label.config(text="Start Node: Not Selected")
-        self.end_label.config(text="End Node: Not Selected")
+        
+        self.path_found = None
+        
+        self.start_label.config(text="Nodo inicial: ")
+        self.end_label.config(text="Nodo final: ")
+        
         self.draw_graph()
-
+    
 # - - - - - - - - -  Main method - - - - - - - - - - - - >
 def main():
     root = tk.Tk()
@@ -143,6 +196,7 @@ def main():
     
     # Handle window close event
     def on_closing():
+        plt.close('all')
         root.destroy()  
         sys.exit()
 
