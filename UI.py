@@ -7,19 +7,26 @@ import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from tkinter import messagebox
 
 # Local modules
 from graph import node_collection, edges
 from nodes import Node, AdjacencyNode
-from algs import set_h, dfs, bfs, gbfs, dijkstra, a_star
+from algs import set_h, dfs, bfs, gbfs, dijkstra, a_star, hill_climbing
 
+
+bg_color = "#F0F5F9"  # Lightest
+frame_color = "#C9D6DF"  # Light grey-blue
+button_color = "#52616B"  # Dark grey-blue
+text_color = "#F0F5F9"  # Light text
+hover_color = "#1E2022"  # Darkest for hover effect
 
 class UI:
     def __init__(self, master):
         # Create the main window
+        
         self.master = master
         master.title("Recorrido del Tec")
+        master.configure(bg=bg_color)
         
         # Create NetworkX graph
         self.graph = nx.Graph()
@@ -33,9 +40,16 @@ class UI:
         self.path_found = None
         self.weight_found = None
         
-        # Create buttons frame
+        # Button frame
         self.button_frame = tk.Frame(master)
         self.button_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.button_frame.configure(bg="#52616B")
+        
+        # Info frame
+        self.info_frame = tk.Frame(master)
+        self.info_frame.pack(side=tk.TOP, fill=tk.X)
+        self.info_frame.configure(bg="#52616B")
+        
         
         # Create figure and canvas
         self.figure, self.ax = plt.subplots(figsize=(10, 8))
@@ -43,16 +57,16 @@ class UI:
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         
-        # Info frame
-        self.info_frame = tk.Frame(master)
-        self.info_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
         # Info labels
-        self.start_label = tk.Label(self.info_frame, text="Inicio:", fg="blue")
+        self.start_label = tk.Label(self.info_frame, text="Nodo inicial:", fg=text_color, bg="#52616B")
         self.start_label.pack(side=tk.LEFT, padx=10)
         
-        self.end_label = tk.Label(self.info_frame, text="Nodo final:", fg="blue")
+        self.end_label = tk.Label(self.info_frame, text="Nodo final:", fg=text_color, bg="#52616B")
         self.end_label.pack(side=tk.LEFT, padx=10)
+        
+        self.cost_label = tk.Label(self.info_frame, text="", fg=text_color, bg="#52616B")
+        self.cost_label.pack(side=tk.LEFT, padx=10)
         
         # Algorithm buttons
         self.create_algorithm_buttons()
@@ -71,8 +85,15 @@ class UI:
     def draw_graph(self):
         # Clear previous drawing
         self.ax.clear()
-        self.pos = nx.spring_layout(self.graph, seed=42)
-            
+        
+        
+        positions_df = pd.read_csv('./data/positions.csv')
+        self.pos = {}
+        for _, row in positions_df.iterrows():
+            # Normalize coordinates to be between 0 and 1 for NetworkX layout
+            self.pos[row['nodes']] =  ( row['x'] / max(positions_df['x']), 
+                                        self.master.winfo_height() - row['y'] / max(positions_df['y']) )
+        
         # Draw nodes
         nx.draw_networkx_nodes(self.graph, self.pos, ax=self.ax, 
                                 node_color=['#C890A7' if n == self.start_node else 
@@ -172,7 +193,6 @@ class UI:
                 closest_node = node
                 min_dist = dist
                 
-        # closest_node: str
         return closest_node
     
     # - - - - - - - - Algorithm buttons - - - - - - - - >
@@ -182,27 +202,43 @@ class UI:
             ("BFS", bfs),
             ("GBFS", gbfs),
             ("Dijkstra", dijkstra),
-            ("A*", a_star)
+            ("A*", a_star),
+            ("Hill Climbing", hill_climbing)
         ]
         for name, algorithm in algorithms:
-            btn = tk.Button(self.button_frame, text=name, 
+            btn = tk.Button(self.button_frame, 
+                            text=name, 
+                            bg=button_color, 
+                            fg=text_color, 
+                            activebackground=hover_color, 
+                            activeforeground=text_color,
                             command=lambda alg=algorithm: self.run_algorithm(alg))
-            btn.pack(side=tk.LEFT, padx=5, pady=5)
+            btn.pack(side=tk.LEFT, padx=5, pady=7)
         
-        reset_btn = tk.Button(self.button_frame, text="Reiniciar", command=self.reset_selection)
-        reset_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        reset_btn = tk.Button(
+            self.button_frame, 
+            text="Reiniciar", 
+            bg=button_color, 
+            fg=text_color, 
+            activebackground=hover_color, 
+            activeforeground=text_color,
+            command=self.reset_selection)
+        
+        reset_btn.pack(side=tk.LEFT, padx=5, pady=7)
     
     def run_algorithm(self, algorithm):
         if self.start_node and self.end_node:
             start = node_collection[self.start_node]
             end = node_collection[self.end_node]
             
-            # If alg is heuristic, set up the heuristic
-            if algorithm in [gbfs, a_star]:
+            if algorithm in [gbfs, a_star, hill_climbing]:
                 set_h(node_collection, end)
             
-            self.path_found, self.weight_found = algorithm(start, end)
-            self.draw_graph()
+            result = algorithm(start, end)
+            if result:
+                self.path_found, self.weight_found = result
+                self.cost_label.config(text=f"Coste: {self.weight_found} segundos")
+                self.draw_graph()
             
     
     def reset_selection(self):
@@ -213,6 +249,7 @@ class UI:
         
         self.start_label.config(text="Nodo inicial: ")
         self.end_label.config(text="Nodo final: ")
+        self.cost_label.config(text="")
         
         self.draw_graph()
     

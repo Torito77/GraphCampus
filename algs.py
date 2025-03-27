@@ -156,6 +156,10 @@ def a_star(start: Node, end: Node):
     return None
 
 
+def hill_climbing(start: Node, end: Node):
+    #TODO: Implement method
+    return None
+
 # - Heuritstic management methods - - - - - - - - - - - - - - - - - - - - - - - >
 
 def set_h(all_nodes:dict[Node], end:Node):
