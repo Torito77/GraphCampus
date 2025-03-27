@@ -60,12 +60,10 @@ def bfs(start: Node, end: Node):
     return None
 
 
-def gbfs(head:Node, start:Node, end:Node):
+def gbfs(start:Node, end:Node):
     p_queue = PriorityQueue()
     visited = set()
     path = []
-    reset_h(head)
-    fill_h(end)
     
     p_queue.put( (start.h_value, start, [start.info], 0) ) # (heuristic, node, path, cost)
 
@@ -97,7 +95,6 @@ def dijkstra(start: Node, end: Node):
     distances = {start: 0}  # (node, acummulated cost)
     visited = set()
 
-    
     while not pq.empty():
         cost, current, path = pq.get()
         current: Node
@@ -124,13 +121,10 @@ def dijkstra(start: Node, end: Node):
     return None
 
 
-def a_star(head:Node, start: Node, end: Node):
+def a_star(start: Node, end: Node):
     pq = PriorityQueue()
     distances = {start: 0} # {node: cost}
     visited = set()
-    
-    reset_h(head)
-    fill_h(end)
     
     # weight = cost + h
     pq.put((start.h_value, 0, start, [start.info]))  # (weight, cost, node, path)
@@ -163,11 +157,16 @@ def a_star(head:Node, start: Node, end: Node):
 
 
 # - Heuritstic management methods - - - - - - - - - - - - - - - - - - - - - - - >
-def reset_h(head: Node):
-    temp = head
-    while temp is not None:
-        temp.h_value = None
-        temp = temp.next
+
+def set_h(all_nodes:dict[Node], end:Node):
+    if end.h_value == 0:
+        return
+    
+    for n in all_nodes.values():
+        n: Node
+        n.h_value = None
+    fill_h(end)
+
 
 def fill_h(end_node: Node) -> None:
     end_node.h_value = 0

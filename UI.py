@@ -10,9 +10,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import messagebox
 
 # Local modules
-from graph import head, node_collection, edges
+from graph import node_collection, edges
 from nodes import Node, AdjacencyNode
-from algs import dfs, bfs, gbfs, dijkstra, a_star
+from algs import set_h, dfs, bfs, gbfs, dijkstra, a_star
 
 
 class UI:
@@ -26,12 +26,12 @@ class UI:
         self.create_graph()
         
         # Selection variables
-        self.start_node = None
-        self.end_node = None
-        self.selected_algorithm = None
+        self.start_node: str = None
+        self.end_node: str = None
         
         # Result variables
         self.path_found = None
+        self.weight_found = None
         
         # Create buttons frame
         self.button_frame = tk.Frame(master)
@@ -72,7 +72,7 @@ class UI:
         # Clear previous drawing
         self.ax.clear()
         self.pos = nx.spring_layout(self.graph, seed=42)
-        
+            
         # Draw nodes
         nx.draw_networkx_nodes(self.graph, self.pos, ax=self.ax, 
                                 node_color=['#C890A7' if n == self.start_node else 
@@ -80,17 +80,33 @@ class UI:
                                             '#D9EAFD' for n in self.graph.nodes()], 
                                 node_size=500)
         
-        # Draw edges with weights
-        nx.draw_networkx_edges(self.graph, self.pos, ax=self.ax, width=1, edge_color='gray')
+        # Determine edge colors depending the path found
+        if self.path_found:
+            path_connections = set()
+            for i in range( len(self.path_found)-1 ):
+                path_connections.add((self.path_found[i], self.path_found[i+1]))
+            
+            edge_colors = []
+            edge_widths = []
+            for (u, v) in self.graph.edges():
+                if (u, v) in path_connections or (v, u) in path_connections:
+                    edge_colors.append('#3F72AF')  
+                    edge_widths.append(2)  
+                else: 
+                    # Normal edge
+                    edge_colors.append('gray')  
+                    edge_widths.append(1)  
+        else:
+            edge_colors = "gray"
+            edge_widths = 1
         
-        # # Draw edge labels
-        # edge_labels = nx.get_edge_attributes(self.graph, 'weight')
-        # nx.draw_networkx_edge_labels(self.graph, self.pos, edge_labels=edge_labels, ax=self.ax)
+        # Draw edges with weights
+        nx.draw_networkx_edges(self.graph, self.pos, ax=self.ax, width=edge_widths, edge_color=edge_colors)
         
         # Draw node labels
         nx.draw_networkx_labels(self.graph, self.pos, ax=self.ax)
         
-        self.ax.set_title("Graph Visualization")
+        self.ax.set_title("Grafo-Tec")
         self.ax.axis('off')
         
         # Connect click event
@@ -99,6 +115,13 @@ class UI:
         # Redraw canvas
         self.canvas.draw()
         
+    def is_edge_in_path(self, u, v):
+        # Check if the edge exists in consecutive nodes of the path
+        for i in range(len(self.path_found) - 1):
+            if (self.path_found[i] == u and self.path_found[i+1] == v) or (self.path_found[i] == v and self.path_found[i+1] == u):
+                return True
+        
+        return False
     
     # - - - - Graph clicking & node selection - - - - - >
     def on_node_click(self, event):
@@ -125,6 +148,8 @@ class UI:
             else:
                 self.start_node = node
                 self.end_node = None
+                self.path_found = None
+                self.weight_found = None
                 self.start_label.config(text=f"Nodo inicial: {node}")
                 self.end_label.config(text="Nodo final:")
             
@@ -153,34 +178,36 @@ class UI:
     # - - - - - - - - Algorithm buttons - - - - - - - - >
     def create_algorithm_buttons(self):
         algorithms = [
-            ("DFS", self.run_dfs),
-            ("BFS", self.run_bfs),
-            ("Greedy BFS", self.run_gbfs),
-            ("Dijkstra", self.run_dijkstra),
-            ("A*", self.run_a_star)
+            ("DFS", dfs),
+            ("BFS", bfs),
+            ("GBFS", gbfs),
+            ("Dijkstra", dijkstra),
+            ("A*", a_star)
         ]
-        for name, command in algorithms:
-            btn = tk.Button(self.button_frame, text=name, command=command)
+        for name, algorithm in algorithms:
+            btn = tk.Button(self.button_frame, text=name, 
+                            command=lambda alg=algorithm: self.run_algorithm(alg))
             btn.pack(side=tk.LEFT, padx=5, pady=5)
         
-        reset_btn = tk.Button(self.button_frame, text="Quitar selección", command=self.reset_selection)
+        reset_btn = tk.Button(self.button_frame, text="Reiniciar", command=self.reset_selection)
         reset_btn.pack(side=tk.LEFT, padx=5, pady=5)
     
-    def run_dfs(self):
-        pass
-    def run_bfs(self):
-        pass
-    def run_gbfs(self):
-        pass
-    def run_dijkstra(self):
-        pass
-    def run_a_star(self):
-        pass
+    def run_algorithm(self, algorithm):
+        if self.start_node and self.end_node:
+            start = node_collection[self.start_node]
+            end = node_collection[self.end_node]
+            
+            # If alg is heuristic, set up the heuristic
+            if algorithm in [gbfs, a_star]:
+                set_h(node_collection, end)
+            
+            self.path_found, self.weight_found = algorithm(start, end)
+            self.draw_graph()
+            
     
     def reset_selection(self):
         self.start_node = None
         self.end_node = None
-        self.selected_algorithm = None
         
         self.path_found = None
         
