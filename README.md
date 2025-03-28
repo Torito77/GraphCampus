@@ -34,7 +34,7 @@ El proyecto incluye implementaciones de los siguientes algoritmos de búsqueda:
 1. Haz un Fork del Repositorio
 2. Crea una Nueva Rama
    ```bash
-   git checkout -b feature/nueva-caracteristica
+   git checkout -b feature/new-feature
    ```
 3. Realiza tus Cambios
 4. Prueba tus Modificaciones
