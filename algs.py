@@ -157,8 +157,34 @@ def a_star(start: Node, end: Node):
 
 
 def hill_climbing(start: Node, end: Node):
-    #TODO: Implement method
-    return None
+    current = start
+    path = [current.info]
+    cost = 0
+    visited = set()
+    
+    while current != end:
+        visited.add(current)
+        best_neighbor = None
+        best_h_value = float('inf')
+        
+        temp = current.adj_list
+        while temp:
+            neighbor = temp.adj_node
+            if neighbor not in visited and neighbor.h_value < best_h_value:
+                best_neighbor = neighbor
+                best_h_value = neighbor.h_value
+                best_cost = temp.cost
+
+            temp = temp.next
+        
+        if best_neighbor is None or best_h_value >= current.h_value:
+            break 
+        
+        current = best_neighbor
+        cost += best_cost
+        path.append(current.info)
+    
+    return (path, cost) if current == end else None
 
 # - Heuritstic management methods - - - - - - - - - - - - - - - - - - - - - - - >
 

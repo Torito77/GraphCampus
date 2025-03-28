@@ -86,18 +86,18 @@ class UI:
         # Clear previous drawing
         self.ax.clear()
         
-        
         positions_df = pd.read_csv('./data/positions.csv')
         self.pos = {}
         for _, row in positions_df.iterrows():
             # Normalize coordinates to be between 0 and 1 for NetworkX layout
+            # TODO: Make the graph stay the same when window gets resized
             self.pos[row['nodes']] =  ( row['x'] / max(positions_df['x']), 
                                         self.master.winfo_height() - row['y'] / max(positions_df['y']) )
-        
+
         # Draw nodes
         nx.draw_networkx_nodes(self.graph, self.pos, ax=self.ax, 
-                                node_color=['#C890A7' if n == self.start_node else 
-                                            '#AAB99A' if n == self.end_node else 
+                                node_color=['#5376A3' if n == self.start_node else 
+                                            '#4B8A6E' if n == self.end_node else 
                                             '#D9EAFD' for n in self.graph.nodes()], 
                                 node_size=500)
         
@@ -237,7 +237,7 @@ class UI:
             result = algorithm(start, end)
             if result:
                 self.path_found, self.weight_found = result
-                self.cost_label.config(text=f"Coste: {self.weight_found} segundos")
+                self.cost_label.config(text=f"Coste: {round(self.weight_found,1)} segundos")
                 self.draw_graph()
             
     
