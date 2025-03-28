@@ -59,11 +59,3 @@ def print_nodes(head: MasterNode):
                 print(f"{temp.adj_node.info}: {temp.cost} -> ", end="")
                 
             temp = temp.next
-
-# dummy = Node("DUMMY")
-# head = AdjacencyNode(cost=3.1, h_value=1, adj_node=dummy)
-# dummy.add_adjacent(head)
-# insert_node(head, new_node=AdjacencyNode(cost=4, h_value=1, adj_node=dummy))
-# insert_node(head, new_node=AdjacencyNode(cost=2, h_value=1, adj_node=dummy))
-
-# print(dummy.adj_list)

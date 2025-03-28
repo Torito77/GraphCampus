@@ -195,6 +195,7 @@ def set_h(all_nodes:dict[Node], end:Node):
     for n in all_nodes.values():
         n: Node
         n.h_value = None
+    
     fill_h(end)
 
 

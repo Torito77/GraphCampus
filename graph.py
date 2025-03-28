@@ -2,8 +2,6 @@ import pandas
 from nodes import Node, AdjacencyNode, insert_node, print_nodes
 from algs import dfs, bfs, gbfs, dijkstra, a_star
 
-# nodes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", 
-#         "T", "U", "V", "W", "X", "Y", "Z", "T1", "T2", "CC", "FF", "Cn1", "Cn2", "Et1", "Et2", "Et3", "Et4", "Et5", "Et6"]
 
 positions_df = pandas.read_csv('./data/positions.csv')
 node_collection: dict[Node] = {}

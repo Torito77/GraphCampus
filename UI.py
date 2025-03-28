@@ -21,8 +21,8 @@ hover_color = "#1E2022"  # Darkest for hover effect
 
 class UI:
     def __init__(self, master):
-        # Create the main window
         
+        # Create the main window
         self.master = master
         master.title("Recorrido del Tec")
         master.configure(bg=bg_color)
@@ -49,13 +49,11 @@ class UI:
         self.info_frame.pack(side=tk.TOP, fill=tk.X)
         self.info_frame.configure(bg="#52616B")
         
-        
         # Create figure and canvas
         self.figure, self.ax = plt.subplots(figsize=(10, 8))
         self.canvas = FigureCanvasTkAgg(self.figure, master=master)
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        
         
         # Info labels
         self.start_label = tk.Label(self.info_frame, text="Nodo inicial:", fg=text_color, bg="#52616B")
@@ -87,11 +85,12 @@ class UI:
         
         self.pos = {}
         for key, value in node_collection.items():
-            # TODO: Make the graph stay the same when window gets resized
+            
             value:Node
             # Normalize coordinates to be between 0 and 1 for NetworkX layout
             self.pos[key] =  ( value.xPos / max_x_pos, 
-                            self.master.winfo_height() - value.yPos / max_y_pos )
+                            self.master.winfo_height() - value.yPos / max_y_pos ) # TODO: Make the graph stay the same when window gets resized
+            
 
         # Draw nodes
         nx.draw_networkx_nodes(self.graph, self.pos, ax=self.ax, 
@@ -120,7 +119,7 @@ class UI:
             edge_colors = "gray"
             edge_widths = 1
         
-        # Draw edges with weights
+        # Draw edges
         nx.draw_networkx_edges(self.graph, self.pos, ax=self.ax, width=edge_widths, edge_color=edge_colors)
         
         # Draw node labels
@@ -129,7 +128,7 @@ class UI:
         self.ax.set_title("Grafo-Tec")
         self.ax.axis('off')
         
-        # Connect click event
+        # Click event
         self.figure.canvas.mpl_connect('button_press_event', self.on_node_click)
         
         # Redraw canvas
@@ -163,7 +162,6 @@ class UI:
                 self.end_node = node
                 self.end_label.config(text=f"Nodo final: {node}")
                 
-                
             # If both nodes are set, reset selection
             else:
                 self.start_node = node
@@ -177,11 +175,11 @@ class UI:
             self.draw_graph()
     
     def find_closest_node(self, event):
-        # Find the node closest to the click coordinates
+        # Find the node closest to the click 
         closest_node = None
         min_dist = float('inf')
         for node, (x, y) in self.pos.items():
-            # Convert node position to display coordinates
+            # Convert node to position
             node_x, node_y = self.ax.transData.transform((x, y))
             
             # Calculate distance
@@ -243,7 +241,6 @@ class UI:
     def reset_selection(self):
         self.start_node = None
         self.end_node = None
-        
         self.path_found = None
         
         self.start_label.config(text="Nodo inicial: ")
