@@ -4,13 +4,12 @@ import sys
 # UI Modules
 import tkinter as tk
 import networkx as nx
-import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Local modules
-from graph import node_collection, edges
-from nodes import Node, AdjacencyNode
+from graph import node_collection, edges, max_x_pos, max_y_pos
+from nodes import Node
 from algs import set_h, dfs, bfs, gbfs, dijkstra, a_star, hill_climbing
 
 
@@ -86,13 +85,13 @@ class UI:
         # Clear previous drawing
         self.ax.clear()
         
-        positions_df = pd.read_csv('./data/positions.csv')
         self.pos = {}
-        for _, row in positions_df.iterrows():
-            # Normalize coordinates to be between 0 and 1 for NetworkX layout
+        for key, value in node_collection.items():
             # TODO: Make the graph stay the same when window gets resized
-            self.pos[row['nodes']] =  ( row['x'] / max(positions_df['x']), 
-                                        self.master.winfo_height() - row['y'] / max(positions_df['y']) )
+            value:Node
+            # Normalize coordinates to be between 0 and 1 for NetworkX layout
+            self.pos[key] =  ( value.xPos / max_x_pos, 
+                            self.master.winfo_height() - value.yPos / max_y_pos )
 
         # Draw nodes
         nx.draw_networkx_nodes(self.graph, self.pos, ax=self.ax, 
