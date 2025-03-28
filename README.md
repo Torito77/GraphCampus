@@ -1,4 +1,4 @@
-# Campus Navigation Graph Algorithms
+# Graph Navigation & Visualization
 
 ## 📍 Proyecto de Navegación de Campus usando Algoritmos de Búsqueda en Grafos
 
